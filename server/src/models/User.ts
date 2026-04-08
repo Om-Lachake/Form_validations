@@ -21,6 +21,11 @@ const userSchema = new Schema<IUserDocument, IUserModel>(
       trim: true,
       lowercase: true,
     },
+    password: {
+      type: String,
+      required: [true, "Password is required"],
+      trim: true,
+    },
   },
   {
     timestamps: true,

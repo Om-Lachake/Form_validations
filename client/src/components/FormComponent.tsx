@@ -5,10 +5,12 @@ import { validateData } from "../utils/validation";
 import "./FormComponent.css";
 import type { FormErrors } from "../types/formError";
 import { useDebounce } from "../hooks/Debounce";
+import { getPasswordStrength } from "../utils/strengthCheck";
 
 const initialFormValues: FormValues = {
   name: "",
   email: "",
+  password:""
 };
 
 function FormComponent() {
@@ -20,9 +22,11 @@ function FormComponent() {
   const [status, setStatus] = useState<"idle" | "pending" | "submitted">("idle");
   const [touched, setTouched] = useState<Record<keyof FormValues, boolean>>({
     name: false,
-    email: false
+    email: false, 
+    password: false
   });
   const [valid, setValid] = useState<string | null>(null);
+  const [strength, setStrength] = useState<"weak"|"medium"|"strong"|null>(null);
 
   const debouncedValue = useDebounce(values, 500);
 
@@ -58,6 +62,9 @@ function FormComponent() {
   const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const {name, value} = event.target;
     setValues((prev) => ({...prev, [name]: value}));
+    if(name === "password"){
+      setStrength(getPasswordStrength(value));
+    }
   }
 
 
@@ -83,10 +90,12 @@ function FormComponent() {
           setTouched({
             name: false,
             email: false,
+            password: false
           });
           setValues({
             name: "",
             email: "",
+            password: ""
           });
         } else if (res?.message === "ValidationError") {
           setStatus("idle");
@@ -159,6 +168,25 @@ function FormComponent() {
           )}
           {touched.email && !errors.email && valid && (
             <span className="field-valid">{valid}</span>
+          )}
+        </label>
+
+        <label className="form-field">
+          <span>Password</span>
+          <input
+            name="password"
+            type="password"
+            value={values.password}
+            onChange={handleChange}
+            onBlur={handleBlur}
+          />
+          {touched.password && errors.password && (
+            <span className="field-error">{errors.password}</span>
+          )}
+          {strength && values.password && (
+            <span className={`password-${strength}`}>
+              {strength.toUpperCase()}
+            </span>
           )}
         </label>
 

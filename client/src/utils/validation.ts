@@ -8,6 +8,7 @@ export const validateData = (
 
   const name = formData.name?.trim() || "";
   const email = formData.email?.trim() || "";
+  const password = formData.password?.trim() || "";
 
 
   if (!name) {
@@ -24,6 +25,10 @@ export const validateData = (
     errors.email = "Email is required";
   } else if (!emailRegex.test(email)) {
     errors.email = "Enter a valid email address";
+  }
+
+  if(!password){
+    errors.password = "Password is required";
   }
 
   return errors;

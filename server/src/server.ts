@@ -16,14 +16,16 @@ app.get("/", (req: Request, res: Response) => {
 
 app.post("/api/addUser", async (req: Request, res: Response) => {
   try {
-    const { name, email } = req.body;
+    const { name, email, password } = req.body;
 
-    if (!name || !email) {
-      return res.status(400).json({ error: "Username and email are required" });
+    if (!name || !email || !password) {
+      return res
+        .status(400)
+        .json({ error: "Username, email, and password are required" });
     }
 
-    const newUser = new User({ username:name, email });
-    const savedUser = await newUser.save();
+    const newUser = new User({ username: name, email, password });
+    await newUser.save();
 
     res.status(201).json({
       message: "User added successfully",
@@ -33,7 +35,7 @@ app.post("/api/addUser", async (req: Request, res: Response) => {
       // Duplicate key error
       res.status(409).json({ error: "Email already exists" });
     } else if (error.name === "ValidationError") {
-      console.log("Error occured : ", error)
+      console.log("Error occured : ", error);
       res.status(400).json({ error: error.message });
     } else {
       res.status(500).json({ error: "Internal server error" });
@@ -49,19 +51,17 @@ app.post("/api/lookUser", async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Email is required" });
     }
 
-    const userExists = await User.findOne({email});
+    const userExists = await User.findOne({ email });
 
-    if(userExists){
+    if (userExists) {
       res.status(401).json({
         message: "User alrady exists",
       });
-    }else{
+    } else {
       res.status(200).json({
         message: "User Email available",
       });
     }
-
-    
   } catch (error: any) {
     if (error.code === 11000) {
       // Duplicate key error
